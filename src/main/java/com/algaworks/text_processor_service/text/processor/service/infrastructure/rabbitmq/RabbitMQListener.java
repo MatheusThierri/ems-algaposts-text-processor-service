@@ -10,11 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
+import static com.algaworks.text_processor_service.text.processor.service.infrastructure.rabbitmq.RabbitMQConfig.QUEUE_POST_PROCESSING;
+
 @Component
 @RequiredArgsConstructor
 public class RabbitMQListener {
     private final TextProcessorService textProcessorService;
-    public static final String QUEUE_POST_PROCESSING = "text-processor-service.post-processing.v1.q";
 
     @RabbitListener(queues = QUEUE_POST_PROCESSING, concurrency = "2-3")
     @SneakyThrows

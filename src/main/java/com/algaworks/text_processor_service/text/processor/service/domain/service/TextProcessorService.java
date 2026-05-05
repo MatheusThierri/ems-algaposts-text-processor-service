@@ -2,22 +2,20 @@ package com.algaworks.text_processor_service.text.processor.service.domain.servi
 
 import com.algaworks.text_processor_service.text.processor.service.api.model.input.PostProcessingInput;
 import com.algaworks.text_processor_service.text.processor.service.api.model.output.PostProcessingResultOutput;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 
+import static com.algaworks.text_processor_service.text.processor.service.infrastructure.rabbitmq.RabbitMQConfig.QUEUE_POST_PROCESSING_RESULT;
+
 @Service
 @RequiredArgsConstructor
 public class TextProcessorService {
     private final RabbitTemplate rabbitTemplate;
-    public static final String FANOUT_EXCHANGE_POST_PROCESSING_RESULT_RECEIVED = "post-service.post-processing-result-received.v1.e";
 
-    @Transactional
     public void postProcessingResult(PostProcessingInput postProcessInput) {
         long wordCount = Arrays.stream(postProcessInput.getPostBody().split("\\s+"))
                 .filter(p -> !p.isEmpty())
@@ -32,11 +30,6 @@ public class TextProcessorService {
                 .calculatedValue(calculatedValue)
                 .build();
 
-        MessagePostProcessor messagePostProcessor = message -> {
-            message.getMessageProperties().setHeader("postId", postProcessOutput.getId());
-            return message;
-        };
-
-        rabbitTemplate.convertAndSend(FANOUT_EXCHANGE_POST_PROCESSING_RESULT_RECEIVED, "", postProcessOutput, messagePostProcessor);
+        rabbitTemplate.convertAndSend(QUEUE_POST_PROCESSING_RESULT, postProcessOutput);
     }
 }

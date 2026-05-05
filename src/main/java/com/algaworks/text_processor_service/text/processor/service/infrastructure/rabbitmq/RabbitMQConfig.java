@@ -16,7 +16,7 @@ public class RabbitMQConfig {
     public static final String POST_PROCESSING = "text-processor-service.post-processing.v1";
     public static final String QUEUE_POST_PROCESSING = POST_PROCESSING + ".q";
     public static final String DEAD_LETTER_QUEUE_POST_PROCESSING = POST_PROCESSING + ".dlq";
-    public static final String FANOUT_EXCHANGE_POST_PROCESSING_RECEIVED = "text-processor-service.post-processing-received.v1.e";
+    public static final String QUEUE_POST_PROCESSING_RESULT = "post-service.post-processing-result.v1.q";
 
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
@@ -40,15 +40,5 @@ public class RabbitMQConfig {
     @Bean
     public Queue deadLetterQueuePostProcessing() {
         return QueueBuilder.durable(DEAD_LETTER_QUEUE_POST_PROCESSING).build();
-    }
-
-    @Bean
-    public FanoutExchange exchange() {
-        return ExchangeBuilder.fanoutExchange(FANOUT_EXCHANGE_POST_PROCESSING_RECEIVED).build();
-    }
-
-    @Bean
-    public Binding bindingPostProcessing() {
-        return BindingBuilder.bind(queuePostProcessing()).to(exchange());
     }
 }
